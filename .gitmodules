@@ -1,6 +1,6 @@
 [submodule "proton-wine"]
 	path = proton-wine
-	url = http://github.com/gloriouseggroll/proton-wine/
+	url = git@github.com:journee-live/wine.git
 [submodule "wine-staging"]
 	path = wine-staging
 	url = https://github.com/wine-staging/wine-staging/
