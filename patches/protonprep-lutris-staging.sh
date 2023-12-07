@@ -379,6 +379,14 @@
     #patch -Np1 < ../patches/proton/71-invert-fsr-logic.patch
 
 ### END PROTON-GE ADDITIONAL CUSTOM PATCHES ###
+
+### JOURNEE SECTION
+    
+    echo "WINE: -Journee- Add WINHTTP_OPTION_URL to winhttp request"
+    patch -Np1 < ../patches/journee/add-winhttp-option-url-to-http-request.patch
+
+### 
+
 ### END WINE PATCHING ###
     # need to run these after applying patches
     ./dlls/winevulkan/make_vulkan

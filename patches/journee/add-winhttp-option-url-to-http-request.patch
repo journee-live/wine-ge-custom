@@ -1,0 +1,58 @@
+diff --git a/dlls/winhttp/session.c b/dlls/winhttp/session.c
+index 6b426bee220..da7f3b4f1ec 100644
+--- a/dlls/winhttp/session.c
++++ b/dlls/winhttp/session.c
+@@ -17,6 +17,7 @@
+  */
+ 
+ #include <stdarg.h>
++#include <stdint.h>
+ 
+ #include "windef.h"
+ #include "winbase.h"
+@@ -903,7 +904,45 @@ static BOOL request_query_option( struct object_header *hdr, DWORD option, void
+         *(DWORD *)buffer = request->websocket_set_send_buffer_size;
+         *buflen = sizeof(DWORD);
+         return TRUE;
++    case WINHTTP_OPTION_URL: 
++    {
++        BOOL is_secure;
++        uint8_t *buffer_as_u8;
++        size_t scheme_size;
++        size_t hostname_size;
++        size_t path_size;
++            
++        const wchar_t *scheme;
++                            
++        if(!request->connect->hostname) return FALSE;
++
++        is_secure = (request->hdr.flags & WINHTTP_FLAG_SECURE) != 0;
++        buffer_as_u8 = (uint8_t*)buffer;
++                    
++        if(is_secure) 
++        {
++            scheme = L"https://";        
++        } 
++        else 
++        {
++            scheme = L"http://";    
++        }
++
++        scheme_size = wcslen(scheme) * sizeof(wchar_t);
++        hostname_size = wcslen(request->connect->hostname) * sizeof(wchar_t);
++        path_size = wcslen(request->path) * sizeof(wchar_t);
+ 
++        if(!validate_buffer(buffer, buflen, scheme_size + hostname_size + path_size)) return FALSE;
++
++        memcpy(buffer_as_u8 , scheme, scheme_size);
++        memcpy(buffer_as_u8 + scheme_size, request->connect->hostname, hostname_size);
++        memcpy(buffer_as_u8 + scheme_size + hostname_size, request->path, path_size);
++
++        buffer_as_u8[scheme_size + hostname_size + path_size] = 0;
++        buffer_as_u8[scheme_size + hostname_size + path_size + 1] = 0;     
++        
++        return TRUE;
++    }
+     default:
+         FIXME( "unimplemented option %lu\n", option );
+         SetLastError( ERROR_INVALID_PARAMETER );
